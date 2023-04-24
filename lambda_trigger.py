@@ -1,5 +1,6 @@
 import os
 import boto3
+import logging
 
 PROPERTY_TYPES = {
     "CASA": "https://clasificados.lostiempos.com/inmuebles/tipo/casa-chalet-2014/",
@@ -20,9 +21,11 @@ def lambda_handler(event, context):
     logging.info("> lambda_handler")
 
     sent_urls = []
-    for property_type, url in PROPERTY_TYPES.items()
+    for property_type, url in PROPERTY_TYPES.items():
         for listing_type, param in LISTING_TYPES.items():
             full_url = os.path.join(url, param)
+            logging.info("  %s - %s " % (property_type, listing_type))
+            logging.info("  trigger for: %s " % full_url)
 
             payload = {
                 "url": full_url
