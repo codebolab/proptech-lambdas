@@ -1,0 +1,34 @@
+- name: Remove existing zip file if it exists
+  ansible.builtin.file:
+    path: "{{playbook_dir}}/{{ lambda_name }}.zip"
+    state: absent
+
+- name: Install dependencies from requirements.txt to the package directory
+  ansible.builtin.pip:
+    requirements: "{{ playbook_dir }}/requirements/{{ lambda_name }}.txt"
+    extra_args: "--target {{playbook_dir}}/package-{{ lambda_name }}"
+    state: present
+
+- name: Copy py file into the package directory
+  ansible.builtin.copy:
+    src: "{{ lambda_name}}.py"
+    dest: "{{playbook_dir}}/package-{{lambda_name}}/"
+    remote_src: no
+
+- name: Create a ZIP file with the lambda.py and its dependencies
+  ansible.builtin.archive:
+    path: "{{playbook_dir}}/package-{{ lambda_name }}/"
+    dest: "{{playbook_dir}}/{{ lambda_name }}.zip"
+    format: zip
+
+- name: Create/update Lambda function
+  amazon.aws.lambda:
+    name: trigger_lostiempos
+    runtime: python3.8
+    role: "{{ lambda_role.arn }}"
+    handler: "{{ lambda_name }}.lambda_handler"
+    zip_file: "{{playbook_dir}}/{{ lambda_name }}.zip"
+    timeout: 10
+    memory_size: 128
+    state: present
+  register: lambda_output

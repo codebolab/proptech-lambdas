@@ -1,0 +1,37 @@
+---
+- name: AWS Lambda function deployment
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Ensure boto3 and botocore are installed
+      ansible.builtin.pip:
+        name:
+          - boto3
+          - botocore
+        state: present
+
+    - name: create lambda role
+      include_tasks: tasks/create_role.yml
+
+    - name: create lambda for scrapper
+      include_tasks: tasks/create_lambda.yml
+      vars:
+        lambda_name: "lambda_scrapper"
+
+    - name: create lambda lambda for trigger
+      include_tasks: tasks/create_lambda.yml
+      vars:
+        lambda_name: "lambda_trigger"
+
+    - debug:
+        var: lambda_output
+
+    - name: Create/update CloudWatch rule for daily Lambda function trigger
+      amazon.aws.cloudwatchevent_rule:
+        name: daily_lambda_trigger
+        schedule_expression: "cron(0 12 * * ? *)"
+        state: present
+        targets:
+          - id: scrapper_lostiempos
+            arn: "{{ lambda_output.configuration.function_arn }}"
+      register: cloudwatch_rule

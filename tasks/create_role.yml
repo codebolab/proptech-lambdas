@@ -1,0 +1,15 @@
+- name: Create IAM role for Lambda function
+  community.aws.iam_role:
+    name: lambda_role
+    assume_role_policy_document: "{{ lookup('file', 'templates/trust_policy.json') }}"
+    description: "Role for scrapper_lostiempos"
+    state: present
+  register: lambda_role
+
+- name: Attach required policies to the Lambda role
+  community.aws.iam_policy:
+    iam_type: role
+    iam_name: "{{ lambda_role.role_name }}"
+    policy_name: "lambda_basic_execution"
+    policy_json: "{{ lookup('file', 'templates/basic_execution_policy.json') }}"
+    state: present
