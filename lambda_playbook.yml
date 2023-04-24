@@ -24,7 +24,7 @@
         lambda_name: "lambda_trigger"
 
     - debug:
-        var: lambda_output
+        var: lambda_output.configuration.function_arn
 
     - name: Create/update CloudWatch rule for daily Lambda function trigger
       amazon.aws.cloudwatchevent_rule:
@@ -32,6 +32,6 @@
         schedule_expression: "cron(0 12 * * ? *)"
         state: present
         targets:
-          - id: scrapper_lostiempos
+          - id: lambda_trigger
             arn: "{{ lambda_output.configuration.function_arn }}"
       register: cloudwatch_rule
