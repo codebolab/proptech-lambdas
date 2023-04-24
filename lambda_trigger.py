@@ -1,6 +1,10 @@
 import os
 import boto3
+import json
 import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 PROPERTY_TYPES = {
     "CASA": "https://clasificados.lostiempos.com/inmuebles/tipo/casa-chalet-2014/",
@@ -31,8 +35,8 @@ def lambda_handler(event, context):
                 "url": full_url
             }
             lambda_client.invoke(
-                FunctionName='scrapper',
-                InvocationType='Event',  # Esto hace que la invocación sea asincrónica
+                FunctionName='lambda_scrapper',
+                InvocationType='Event',
                 Payload=json.dumps(payload)
             )
             sent_urls.append(full_url)

@@ -7,6 +7,9 @@ from bs4 import BeautifulSoup
 from botocore.exceptions import ClientError
 from datetime import datetime
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 region_name = 'us-east-1'
 BUCKET = "codebolabs-lake"
 
@@ -85,7 +88,7 @@ def lambda_handler(event, context):
     scrapped = []
     walker = Snapshot(url)
     for page in walker:
-        page.save()
+        page.fetch()
         logging.info("  scrapped: %s" % page.url)
         scrapped.append(page.url)
 
