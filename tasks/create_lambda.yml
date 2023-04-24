@@ -23,7 +23,7 @@
 
 - name: Create/update Lambda function
   amazon.aws.lambda:
-    name: trigger_lostiempos
+    name: "{{ lambda_name }}"
     runtime: python3.8
     role: "{{ lambda_role.arn }}"
     handler: "{{ lambda_name }}.lambda_handler"
