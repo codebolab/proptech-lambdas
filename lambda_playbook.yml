@@ -35,3 +35,13 @@
           - id: lambda_trigger
             arn: "{{ lambda_output.configuration.function_arn }}"
       register: cloudwatch_rule
+
+    - name: Lambda Cloudwatch 
+      amazon.aws.lambda_policy:
+        state: present
+        function_name: lambda_trigger
+        statement_id: lambda-cloudwatch-event-trigger
+        action: lambda:InvokeFunction
+        principal: events.amazonaws.com
+        source_arn: "{{ cloudwatch_rule.rule.arn }}"
+      register: lambda_policy_action
